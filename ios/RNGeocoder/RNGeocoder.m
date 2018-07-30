@@ -34,6 +34,8 @@ RCT_EXPORT_METHOD(geocodePosition:(CLLocation *)location
     [self.geocoder cancelGeocode];
   }
 
+  [self forceEnglishLocale];
+
   [self.geocoder reverseGeocodeLocation:location completionHandler:^(NSArray *placemarks, NSError *error) {
 
     if (error) {
@@ -61,6 +63,8 @@ RCT_EXPORT_METHOD(geocodeAddress:(NSString *)address
       [self.geocoder cancelGeocode];
     }
 
+    [self forceEnglishLocale];
+
     [self.geocoder geocodeAddressString:address completionHandler:^(NSArray *placemarks, NSError *error) {
 
         if (error) {
@@ -73,6 +77,19 @@ RCT_EXPORT_METHOD(geocodeAddress:(NSString *)address
 
         resolve([self placemarksToDictionary:placemarks]);
   }];
+}
+
+- (void)forceEnglishLocale {
+  [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"AppleLanguages"];
+  NSString *oldLang = [[NSLocale preferredLanguages] objectAtIndex:0];
+  self.oldLanguage = oldLang;
+  [[NSUserDefaults standardUserDefaults] setObject:[NSArray arrayWithObjects:@"en", nil] forKey:@"AppleLanguages"];
+  [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (void)restoreOldLocale {
+    [[NSUserDefaults standardUserDefaults] setObject:[NSArray arrayWithObjects:self.oldLanguage, nil] forKey:@"AppleLanguages"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (NSArray *)placemarksToDictionary:(NSArray *)placemarks {
@@ -114,6 +131,8 @@ RCT_EXPORT_METHOD(geocodeAddress:(NSString *)address
 
     [results addObject:result];
   }
+
+  [self restoreOldLocale];
 
   return results;
 

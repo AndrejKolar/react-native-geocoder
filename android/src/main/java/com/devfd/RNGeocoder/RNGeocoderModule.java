@@ -22,7 +22,7 @@ public class RNGeocoderModule extends ReactContextBaseJavaModule {
 
     public RNGeocoderModule(ReactApplicationContext reactContext) {
         super(reactContext);
-        geocoder = new Geocoder(reactContext.getApplicationContext());
+        Geocoder geocoder = new Geocoder(reactContext.getApplicationContext(), Locale.ENGLISH);
     }
 
     @Override
